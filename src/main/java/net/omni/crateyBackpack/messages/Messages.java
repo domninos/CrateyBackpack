@@ -11,9 +11,6 @@ public enum Messages {
     USAGE("usage", "<red>Invalid arguments. Usage: %usage%</red>"),
     UNKNOWN_COMMAND("unknown_cmd", "<red>Unknown command.</red>"),
 
-    GIVE_SUCCESS("give_success", "<green>Successfully gave %player% a sell portal."),
-    GIVE_ERROR("give.error", "<red>Could not give %player% a sell portal. Please check logs.</red>"),
-
     RELOADED("reloaded", "<green>config.yml and messages.yml have been reloaded.</green>"),
 
     KEY_NOT_FOUND("key_not_found", "<red>Key type '%key_id%' not found.</red>"),
