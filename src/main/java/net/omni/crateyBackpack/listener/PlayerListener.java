@@ -28,6 +28,8 @@ public class PlayerListener implements Listener {
         if (event.isCancelled())
             return;
 
+        event.setCancelled(true);
+
         OfflinePlayer player = event.getPlayer();
         Crates.CrateData crateData = event.getCrateData();
 
