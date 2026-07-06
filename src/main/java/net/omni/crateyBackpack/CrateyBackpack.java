@@ -85,8 +85,8 @@ public final class CrateyBackpack extends JavaPlugin {
     }
 
     private void registerCommands() {
-        getCommand("keys").setExecutor(new KeysCommand(this));
-        getCommand("crateybackpack").setExecutor(new CrateyBackpackCommand(this));
+        new KeysCommand(this).register();
+        new CrateyBackpackCommand(this).register();
     }
 
     private void registerListeners() {

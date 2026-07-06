@@ -14,7 +14,7 @@ commands:
   keys:
     description: Opens your key backpack or manages keys.
     aliases: [ keybackpack, kb ]
-    usage: /<command> [give|take|set|show|hide|list]
+    usage: /<command> [help|about|give|take|set|show|hide|list]
   crateybackpack:
     description: Main plugin command.
     aliases: [ cbp ]

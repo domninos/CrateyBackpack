@@ -3,6 +3,7 @@ package net.omni.crateyBackpack.command;
 import net.omni.crateyBackpack.CrateyBackpack;
 import net.omni.crateyBackpack.inventory.KeysInventory;
 import net.omni.crateyBackpack.hook.CrateyHook;
+import net.omni.crateyBackpack.messages.MessageUtil;
 import net.omni.crateyBackpack.messages.Messages;
 import net.omni.crateyBackpack.util.SoundUtil;
 import org.bukkit.Bukkit;
@@ -10,8 +11,12 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +52,8 @@ public class KeysCommand implements CommandExecutor {
 
         String sub = args[0].toLowerCase();
         switch (sub) {
+            case "help" -> sendHelp(sender);
+            case "about" -> sender.sendMessage(MessageUtil.parse(getAboutText()));
             case "give" -> giveKeys(sender, args);
             case "take" -> takeKeys(sender, args);
             case "set" -> setKeys(sender, args);
@@ -54,7 +61,7 @@ public class KeysCommand implements CommandExecutor {
             case "hide" -> hideKey(sender, args);
             case "list" -> listKeys(sender);
             default ->
-                    plugin.sendMessage(sender, Messages.USAGE.replace("usage", "/keys [give|take|set|show|hide|list]"));
+                    plugin.sendMessage(sender, Messages.USAGE.replace("usage", "/keys [help|about|give|take|set|show|hide|list]"));
         }
         return true;
     }
@@ -66,6 +73,49 @@ public class KeysCommand implements CommandExecutor {
         String sound = plugin.getConfigUtil().getOpenSound();
         if (sound != null)
             SoundUtil.playSound(player, sound);
+    }
+
+    private void sendHelp(CommandSender sender) {
+        StringBuilder helpBuilder = new StringBuilder();
+
+        helpBuilder.append("\n<dark_gray>▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪</dark_gray>\n");
+        helpBuilder.append("  <gradient:#00AAFF:#55FFFF><bold>CrateyBackpack</bold></gradient> <gray>\n\n");
+
+        if (sender.hasPermission("crateybackpack.use")) {
+            MessageUtil.append("keys", "Opens your key backpack.", helpBuilder, "keybackpack, kb");
+            MessageUtil.append("keys <#55FFFF>help</#55FFFF>", "Shows this help menu.", helpBuilder);
+            MessageUtil.append("keys <#55FFFF>about</#55FFFF>", "Shows plugin information.", helpBuilder);
+
+            if (sender.hasPermission("crateybackpack.admin")) {
+                MessageUtil.append("keys give <#55FFFF>(player) (keyId) [amount]</#55FFFF>", "Gives keys to a player.", helpBuilder);
+                MessageUtil.append("keys take <#55FFFF>(player) (keyId) [amount]</#55FFFF>", "Takes keys from a player.", helpBuilder);
+                MessageUtil.append("keys set <#55FFFF>(player) (keyId) {amount}</#55FFFF>", "Sets a player's key count.", helpBuilder);
+                MessageUtil.append("keys show <#55FFFF>(keyId)</#55FFFF>", "Shows a key type in /keys.", helpBuilder);
+                MessageUtil.append("keys hide <#55FFFF>(keyId)</#55FFFF>", "Hides a key type from /keys.", helpBuilder);
+                MessageUtil.append("keys <#55FFFF>list</#55FFFF>", "Lists all key types.", helpBuilder);
+            }
+        }
+
+        helpBuilder.append("<dark_gray>▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪</dark_gray>");
+
+        sender.sendMessage(MessageUtil.parse(helpBuilder.toString()));
+    }
+
+    private String getAboutText() {
+        String pluginName = plugin.getDescription().getName();
+        String version = plugin.getDescription().getVersion();
+        String author = plugin.getDescription().getAuthors().getFirst();
+        String githubUrl = "https://github.com/domninos/CrateyBackpack";
+        String discordUrl = "https://discord.gg/7CuCtDHmQ3";
+
+        return "<dark_gray>▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪</dark_gray>\n" +
+                "  <gradient:#00AAFF:#55FFFF><bold>" + pluginName + "</bold></gradient>\n\n" +
+                "  <yellow>Version:</yellow> <white>" + version + "</white>\n" +
+                "  <yellow>Author:</yellow> <aqua>" + author + "</aqua>\n\n" +
+                "  <white>Links: </white>" +
+                "<click:open_url:'" + githubUrl + "'><hover:show_text:'<gray>View source code on GitHub</gray>'><dark_purple>[GitHub]</dark_purple></hover></click> " +
+                "<click:open_url:'" + discordUrl + "'><hover:show_text:'<gray>Join the support Discord</gray>'><blue>[Discord]</blue></hover></click>\n" +
+                "<dark_gray>▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪</dark_gray>";
     }
 
     private void giveKeys(CommandSender sender, String[] args) {
@@ -235,5 +285,59 @@ public class KeysCommand implements CommandExecutor {
         } catch (NumberFormatException e) {
             return def;
         }
+    }
+
+    public void register() {
+        PluginCommand cmd = plugin.getCommand("keys");
+
+        if (cmd == null) {
+            plugin.sendConsole("<red>/keys is not a command.</red>");
+            return;
+        }
+
+        cmd.setTabCompleter((sender, command, label, args) -> {
+            List<String> subcommands = new ArrayList<>();
+            List<String> completions = new ArrayList<>();
+
+            if (args.length == 1) {
+                subcommands.add("help");
+                subcommands.add("about");
+
+                if (sender.hasPermission("crateybackpack.admin")) {
+                    subcommands.add("give");
+                    subcommands.add("take");
+                    subcommands.add("set");
+                    subcommands.add("show");
+                    subcommands.add("hide");
+                    subcommands.add("list");
+                }
+
+                StringUtil.copyPartialMatches(args[0], subcommands, completions);
+
+                return completions;
+            } else if (args.length >= 2) {
+                if ((args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("take") || args[0].equalsIgnoreCase("set"))
+                        && sender.hasPermission("crateybackpack.admin")) {
+                    if (args.length == 2)
+                        return null;
+                    else if (args.length == 3)
+                        completions.addAll(plugin.getCrateyHook().getKeyTypes().keySet());
+                    else if (args.length == 4)
+                        completions.add("[amount]");
+
+                    return completions;
+                } else if ((args[0].equalsIgnoreCase("show") || args[0].equalsIgnoreCase("hide"))
+                        && sender.hasPermission("crateybackpack.admin")) {
+                    if (args.length == 2)
+                        completions.addAll(plugin.getCrateyHook().getKeyTypes().keySet());
+
+                    return completions;
+                }
+            }
+
+            return Collections.emptyList();
+        });
+
+        cmd.setExecutor(this);
     }
 }
