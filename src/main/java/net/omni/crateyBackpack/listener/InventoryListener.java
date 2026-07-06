@@ -39,13 +39,17 @@ public class InventoryListener implements Listener {
             return;
 
         int slot = event.getSlot();
-        int headSlot = 0;
 
-        if (slot == headSlot)
+        if (slot == 25) {
+            keysInventory.prevPage();
             return;
+        }
+        if (slot == 26) {
+            keysInventory.nextPage();
+            return;
+        }
 
-        ItemStack clicked = event.getCurrentItem();
-        String keyId = findKeyId(clicked, keysInventory.getCrateyHook());
+        String keyId = keysInventory.getKeyIdAtSlot(slot);
         if (keyId == null)
             return;
 
@@ -76,14 +80,6 @@ public class InventoryListener implements Listener {
         String claimSound = plugin.getConfigUtil().getClaimSound();
         if (claimSound != null)
             SoundUtil.playSound(player, claimSound);
-    }
-
-    private String findKeyId(ItemStack item, CrateyHook crateyHook) {
-        for (Map.Entry<String, CrateyHook.CrateKeyData> entry : crateyHook.getKeyTypes().entrySet()) {
-            if (item.isSimilar(entry.getValue().keyItem()))
-                return entry.getKey();
-        }
-        return null;
     }
 
     @EventHandler
