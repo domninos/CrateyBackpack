@@ -1,8 +1,8 @@
 package net.omni.crateyBackpack.command;
 
 import net.omni.crateyBackpack.CrateyBackpack;
-import net.omni.crateyBackpack.inventory.KeysInventory;
 import net.omni.crateyBackpack.hook.CrateyHook;
+import net.omni.crateyBackpack.inventory.KeysInventory;
 import net.omni.crateyBackpack.messages.MessageUtil;
 import net.omni.crateyBackpack.messages.Messages;
 import net.omni.crateyBackpack.util.SoundUtil;
@@ -68,6 +68,7 @@ public class KeysCommand implements CommandExecutor {
 
     private void openBackpack(Player player) {
         KeysInventory inv = plugin.getBackpackManager().getCachedInventory(player);
+        inv.buildPage(0);
         player.openInventory(inv.getInventory());
 
         String sound = plugin.getConfigUtil().getOpenSound();
@@ -142,10 +143,12 @@ public class KeysCommand implements CommandExecutor {
         plugin.getBackpackManager().addKey(target.getUniqueId(), keyId, amount);
 
         String name = plugin.getCrateyHook().getKeyType(keyId).get().name();
-        plugin.sendMessage(sender, Messages.KEY_GIVEN
-                .replace("player", target.getName() != null ? target.getName() : args[1])
-                .replace("key_name", name)
-                .replace("amount", String.valueOf(amount)));
+        plugin.sendMessage(sender,
+                Messages.KEY_GIVEN.replace(
+                        "player", target.getName() != null ? target.getName() : args[1],
+                        "key_name", name,
+                        "amount", String.valueOf(amount)
+                ));
     }
 
     private void takeKeys(CommandSender sender, String[] args) {
@@ -172,16 +175,20 @@ public class KeysCommand implements CommandExecutor {
         boolean success = plugin.getBackpackManager().takeKey(target.getUniqueId(), keyId, amount);
         if (!success) {
             plugin.sendMessage(sender, Messages.KEY_TAKE_FAIL
-                    .replace("player", target.getName() != null ? target.getName() : args[1])
-                    .replace("key_id", keyId));
+                    .replace(
+                            "player", target.getName() != null ? target.getName() : args[1],
+                            "key_id", keyId
+                    ));
             return;
         }
 
         String name = plugin.getCrateyHook().getKeyType(keyId).get().name();
-        plugin.sendMessage(sender, Messages.KEY_TAKEN
-                .replace("player", target.getName() != null ? target.getName() : args[1])
-                .replace("key_name", name)
-                .replace("amount", String.valueOf(amount)));
+        plugin.sendMessage(sender,
+                Messages.KEY_TAKEN.replace(
+                        "player", target.getName() != null ? target.getName() : args[1],
+                        "key_name", name,
+                        "amount", String.valueOf(amount)
+                ));
     }
 
     private void setKeys(CommandSender sender, String[] args) {
@@ -210,10 +217,12 @@ public class KeysCommand implements CommandExecutor {
         plugin.getBackpackManager().setKey(target.getUniqueId(), keyId, amount);
 
         String name = plugin.getCrateyHook().getKeyType(keyId).map(CrateyHook.CrateKeyData::name).orElse(keyId);
-        plugin.sendMessage(sender, Messages.KEY_SET
-                .replace("player", target.getName() != null ? target.getName() : args[1])
-                .replace("key_name", name)
-                .replace("amount", String.valueOf(amount)));
+        plugin.sendMessage(sender,
+                Messages.KEY_SET.replace(
+                        "player", target.getName() != null ? target.getName() : args[1],
+                        "key_name", name,
+                        "amount", String.valueOf(amount)
+                ));
     }
 
     private void showKey(CommandSender sender, String[] args) {
