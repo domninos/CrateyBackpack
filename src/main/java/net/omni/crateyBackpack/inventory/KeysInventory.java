@@ -21,10 +21,10 @@ import java.util.UUID;
 
 public class KeysInventory implements InventoryHolder {
 
-    private static final int INVENTORY_SIZE = 27;
+    private static final int INVENTORY_SIZE = 36;
     private static final int ITEMS_PER_PAGE = 14;
-    private static final int PREV_SLOT = 25;
-    private static final int NEXT_SLOT = 26;
+    private static final int PREV_SLOT = 34;
+    private static final int NEXT_SLOT = 35;
 
     private final CrateyBackpack plugin;
     private final Player player;
@@ -79,21 +79,28 @@ public class KeysInventory implements InventoryHolder {
         int totalPages = getTotalPages();
         int start = page * ITEMS_PER_PAGE;
         int end = Math.min(start + ITEMS_PER_PAGE, displayKeys.size());
+        int remaining = end - start;
 
-        int keyIndex = 0;
-        for (int i = start; i < end; i++) {
-            CrateyHook.CrateKeyData keyData = displayKeys.get(i);
+        // Row 1 (slots 9-17): keys centered, max 7, filler borders at 9 and 17
+        int count1 = Math.min(7, remaining);
+        int row1Start = 10 + (7 - count1) / 2;
+        for (int i = 0; i < count1; i++) {
+            CrateyHook.CrateKeyData keyData = displayKeys.get(start + i);
             int amount = amounts.getOrDefault(keyData.id(), 0);
-
-            int row = keyIndex / 7;
-            int col = keyIndex % 7;
-            int itemsInRow = Math.min(7, end - start - keyIndex);
-            int startSlot = row * 9 + 1 + (7 - itemsInRow) / 2;
-
-            int slot = startSlot + col;
+            int slot = row1Start + i;
             inventory.setItem(slot, createKeyItem(keyData, amount));
             keySlots.add(slot);
-            keyIndex++;
+        }
+
+        // Row 2 (slots 18-26): keys centered in 19-25
+        int count2 = Math.min(7, remaining - count1);
+        int row2Start = 19 + (7 - count2) / 2;
+        for (int i = 0; i < count2; i++) {
+            CrateyHook.CrateKeyData keyData = displayKeys.get(start + count1 + i);
+            int amount = amounts.getOrDefault(keyData.id(), 0);
+            int slot = row2Start + i;
+            inventory.setItem(slot, createKeyItem(keyData, amount));
+            keySlots.add(slot);
         }
 
         if (page > 0)
@@ -101,27 +108,6 @@ public class KeysInventory implements InventoryHolder {
 
         if (page < totalPages - 1)
             inventory.setItem(NEXT_SLOT, createNavItem("<gold>Next →</gold>"));
-    }
-
-    private ItemStack createNavItem(String name) {
-        if (name.contains("Previous")) {
-            if (cachedPrevArrow != null)
-                return cachedPrevArrow;
-            cachedPrevArrow = buildArrow(name);
-            return cachedPrevArrow;
-        }
-        if (cachedNextArrow != null)
-            return cachedNextArrow;
-        cachedNextArrow = buildArrow(name);
-        return cachedNextArrow;
-    }
-
-    private ItemStack buildArrow(String name) {
-        ItemStack item = new ItemStack(Material.ARROW);
-        ItemMeta meta = item.getItemMeta();
-        plugin.getChatRenderer().setDisplayName(meta, MessageUtil.parse(name));
-        item.setItemMeta(meta);
-        return item;
     }
 
     private ItemStack createFiller() {
@@ -136,6 +122,10 @@ public class KeysInventory implements InventoryHolder {
         return cachedFiller;
     }
 
+    public int getTotalPages() {
+        return (int) Math.ceil((double) displayKeys.size() / ITEMS_PER_PAGE);
+    }
+
     private ItemStack createKeyItem(CrateyHook.CrateKeyData keyData, int amount) {
         ItemStack item = keyData.keyItem().clone();
         ItemMeta meta = item.getItemMeta();
@@ -147,6 +137,7 @@ public class KeysInventory implements InventoryHolder {
 
         if (nameFormat != null) {
             int idx = nameFormat.indexOf("{key_name}");
+
             if (idx >= 0) {
                 String prefixStr = nameFormat.substring(0, idx)
                         .replace("{amount}", String.valueOf(amount));
@@ -193,6 +184,30 @@ public class KeysInventory implements InventoryHolder {
         return item;
     }
 
+    private ItemStack createNavItem(String name) {
+        if (name.contains("Previous")) {
+            if (cachedPrevArrow != null)
+                return cachedPrevArrow;
+
+            cachedPrevArrow = buildArrow(name);
+            return cachedPrevArrow;
+        }
+
+        if (cachedNextArrow != null)
+            return cachedNextArrow;
+
+        cachedNextArrow = buildArrow(name);
+        return cachedNextArrow;
+    }
+
+    private ItemStack buildArrow(String name) {
+        ItemStack item = new ItemStack(Material.ARROW);
+        ItemMeta meta = item.getItemMeta();
+        plugin.getChatRenderer().setDisplayName(meta, MessageUtil.parse(name));
+        item.setItemMeta(meta);
+        return item;
+    }
+
     public void refresh() {
         buildPage(currentPage);
     }
@@ -210,15 +225,11 @@ public class KeysInventory implements InventoryHolder {
     public String getKeyIdAtSlot(int slot) {
         int idx = keySlots.indexOf(slot);
         if (idx < 0) return null;
-        return displayKeys.get(idx).id();
+        return displayKeys.get(currentPage * ITEMS_PER_PAGE + idx).id();
     }
 
     public int getCurrentPage() {
         return currentPage;
-    }
-
-    public int getTotalPages() {
-        return (int) Math.ceil((double) displayKeys.size() / ITEMS_PER_PAGE);
     }
 
     @Override
