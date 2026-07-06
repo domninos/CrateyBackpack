@@ -1,10 +1,11 @@
-package net.omni.crateyBackpack.managers;
+package net.omni.crateyBackpack.hook;
 
 import me.colingrimes.cratey.Cratey;
 import me.colingrimes.cratey.config.implementation.Crates;
 import me.colingrimes.cratey.crate.manager.CrateManager;
 import net.omni.crateyBackpack.CrateyBackpack;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
@@ -69,7 +70,8 @@ public class CrateyHook {
 
         for (Map.Entry<String, Crates.CrateData> entry : crateManager.getCrateData().entrySet()) {
             Crates.CrateData data = entry.getValue();
-            cachedKeyTypes.put(data.getId(), new CrateKeyData(data.getId(), data.getName().toText(), data.getKey().clone()));
+            String keyName = ChatColor.stripColor(data.getName().toText());
+            cachedKeyTypes.put(data.getId(), new CrateKeyData(data.getId(), keyName, data.getKey().clone()));
         }
 
         return cachedKeyTypes;

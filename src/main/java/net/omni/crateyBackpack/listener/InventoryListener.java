@@ -3,7 +3,7 @@ package net.omni.crateyBackpack.listener;
 import net.omni.crateyBackpack.CrateyBackpack;
 import net.omni.crateyBackpack.inventory.KeysInventory;
 import net.omni.crateyBackpack.managers.BackpackManager;
-import net.omni.crateyBackpack.managers.CrateyHook;
+import net.omni.crateyBackpack.hook.CrateyHook;
 import net.omni.crateyBackpack.util.SoundUtil;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

@@ -2,7 +2,7 @@ package net.omni.crateyBackpack.inventory;
 
 import net.omni.crateyBackpack.CrateyBackpack;
 import net.omni.crateyBackpack.managers.BackpackManager;
-import net.omni.crateyBackpack.managers.CrateyHook;
+import net.omni.crateyBackpack.hook.CrateyHook;
 import net.omni.crateyBackpack.messages.MessageUtil;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -130,10 +130,12 @@ public class KeysInventory implements InventoryHolder {
         ItemMeta meta = item.getItemMeta();
 
         String nameFormat = plugin.getConfigUtil().getKeyNameFormat();
+
         if (nameFormat != null) {
             String name = nameFormat
                     .replace("{amount}", String.valueOf(amount))
                     .replace("{key_name}", keyData.name());
+
             plugin.getChatRenderer().setDisplayName(meta, MessageUtil.parse(name));
         }
 

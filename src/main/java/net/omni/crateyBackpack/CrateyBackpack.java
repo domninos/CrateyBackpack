@@ -10,7 +10,7 @@ import net.omni.crateyBackpack.config.ConfigUtil;
 import net.omni.crateyBackpack.listener.InventoryListener;
 import net.omni.crateyBackpack.listener.PlayerListener;
 import net.omni.crateyBackpack.managers.BackpackManager;
-import net.omni.crateyBackpack.managers.CrateyHook;
+import net.omni.crateyBackpack.hook.CrateyHook;
 import net.omni.crateyBackpack.managers.DatabaseManager;
 import net.omni.crateyBackpack.managers.MessagesManager;
 import net.omni.crateyBackpack.messages.MessageUtil;
