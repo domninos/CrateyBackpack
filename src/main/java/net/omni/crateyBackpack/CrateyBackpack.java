@@ -28,6 +28,11 @@ public final class CrateyBackpack extends JavaPlugin {
     private BackpackManager backpackManager;
     private CrateyHook crateyHook;
 
+    /*
+    TODO:
+        fix inventory when too many + fix arrows properly
+     */
+
     @Override
     public void onDisable() {
         if (backpackManager != null)

@@ -34,7 +34,7 @@ public class PlayerListener implements Listener {
         Crates.CrateData crateData = event.getCrateData();
 
         Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),
-                "keys give " + player.getName() + " " + crateData.getId() + " 1");
+                "keys give " + player.getName() + " " + crateData.getId() + " " + event.getAmount());
     }
 
     @EventHandler
