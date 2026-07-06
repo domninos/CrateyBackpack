@@ -28,6 +28,7 @@ public class CrateyBackpackCommand implements CommandExecutor {
 
         plugin.getConfigUtil().reloadConfig();
         plugin.getMessagesManager().loadMessages();
+        plugin.getCrateyHook().refresh();
         plugin.sendMessage(sender, Messages.RELOADED.toString());
         return true;
     }

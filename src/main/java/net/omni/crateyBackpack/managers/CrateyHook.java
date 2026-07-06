@@ -13,6 +13,7 @@ public class CrateyHook {
 
     private final CrateyBackpack plugin;
     private CrateManager crateManager;
+    private Map<String, CrateKeyData> cachedKeyTypes;
 
     public CrateyHook(CrateyBackpack plugin) {
         this.plugin = plugin;
@@ -26,7 +27,11 @@ public class CrateyHook {
         }
 
         this.crateManager = Cratey.getInstance().getCrateManager();
+        mergeVisibleKeys();
+        plugin.getLogger().info("Successfully hooked into Cratey.");
+    }
 
+    private void mergeVisibleKeys() {
         List<String> visible = plugin.getConfigUtil().getVisibleKeys();
         Set<String> existing = new HashSet<>(visible);
         int added = 0;
@@ -43,23 +48,31 @@ public class CrateyHook {
             plugin.saveConfig();
             plugin.sendConsole("<green>Added " + added + " new key type(s) to visible-keys.</green>");
         }
+    }
 
-        existing.clear();
+    public void refresh() {
+        cachedKeyTypes = null;
 
-        plugin.getLogger().info("Successfully hooked into Cratey.");
+        if (Bukkit.getPluginManager().isPluginEnabled("Cratey"))
+            this.crateManager = Cratey.getInstance().getCrateManager();
+
+        mergeVisibleKeys();
     }
 
     public Map<String, CrateKeyData> getKeyTypes() {
-        Map<String, CrateKeyData> result = new LinkedHashMap<>();
+        if (cachedKeyTypes != null)
+            return cachedKeyTypes;
+
+        cachedKeyTypes = new LinkedHashMap<>();
         if (crateManager == null)
-            return result;
+            return cachedKeyTypes;
 
         for (Map.Entry<String, Crates.CrateData> entry : crateManager.getCrateData().entrySet()) {
             Crates.CrateData data = entry.getValue();
-            result.put(data.getId(), new CrateKeyData(data.getId(), data.getName().toText(), data.getKey().clone()));
+            cachedKeyTypes.put(data.getId(), new CrateKeyData(data.getId(), data.getName().toText(), data.getKey().clone()));
         }
 
-        return result;
+        return cachedKeyTypes;
     }
 
     public boolean isHooked() {
@@ -74,6 +87,5 @@ public class CrateyHook {
         return Optional.ofNullable(getKeyTypes().get(keyId));
     }
 
-    public record CrateKeyData(String id, String name, ItemStack keyItem) {
-    }
+    public record CrateKeyData(String id, String name, ItemStack keyItem) {}
 }
