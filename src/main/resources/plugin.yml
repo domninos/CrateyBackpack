@@ -3,9 +3,27 @@ description: $description
 version: '${version}'
 
 main: net.omni.crateyBackpack.CrateyBackpack
-api-version: '1.13'
+api-version: '1.21'
 load: POSTWORLD
 
 depend: [ Cratey ]
 
 authors: [ domninos ]
+
+commands:
+  keys:
+    description: Opens your key backpack or manages keys.
+    aliases: [ keybackpack, kb ]
+    usage: /<command> [give|take|set|show|hide|list]
+  crateybackpack:
+    description: Main plugin command.
+    aliases: [ cbp ]
+    usage: /<command> reload
+
+permissions:
+  crateybackpack.use:
+    description: Allows using /keys to open the backpack.
+    default: true
+  crateybackpack.admin:
+    description: Allows using admin commands.
+    default: op
