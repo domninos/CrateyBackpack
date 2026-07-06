@@ -2,7 +2,6 @@ package net.omni.crateyBackpack.command;
 
 import net.omni.crateyBackpack.CrateyBackpack;
 import net.omni.crateyBackpack.inventory.KeysInventory;
-import net.omni.crateyBackpack.managers.BackpackManager;
 import net.omni.crateyBackpack.managers.CrateyHook;
 import net.omni.crateyBackpack.messages.Messages;
 import net.omni.crateyBackpack.util.SoundUtil;
@@ -62,7 +61,7 @@ public class KeysCommand implements CommandExecutor {
         KeysInventory inv = plugin.getBackpackManager().getCachedInventory(player);
         player.openInventory(inv.getInventory());
 
-        String sound = plugin.getMessagesConfig().getString("gui.open-sound");
+        String sound = plugin.getConfigUtil().getOpenSound();
         if (sound != null)
             SoundUtil.playSound(player, sound);
     }

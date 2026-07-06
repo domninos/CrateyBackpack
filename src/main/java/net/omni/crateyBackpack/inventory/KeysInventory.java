@@ -59,9 +59,7 @@ public class KeysInventory implements InventoryHolder {
         int totalRows = Math.clamp(keyRows + 1, 1, 6);
         int size = totalRows * 9;
 
-        String title = plugin.getMessagesConfig().getString("gui.title");
-        if (title == null || title.isEmpty())
-            title = "<gradient:#00AAFF:#55FFFF>Your Backpack</gradient>";
+        String title = plugin.getConfigUtil().getGuiTitle();
 
         Inventory inv = plugin.getChatRenderer().createInventory(this, size, MessageUtil.parse(title));
 
@@ -106,8 +104,7 @@ public class KeysInventory implements InventoryHolder {
     private ItemStack createFiller() {
         ItemStack item = new ItemStack(plugin.getConfigUtil().getFillerMaterial());
         ItemMeta meta = item.getItemMeta();
-        String name = plugin.getMessagesConfig().getString("gui.filler-name");
-        if (name == null || name.isEmpty()) name = " ";
+        String name = plugin.getConfigUtil().getFillerName();
         plugin.getChatRenderer().setDisplayName(meta, MessageUtil.parse(name));
         item.setItemMeta(meta);
         return item;
@@ -118,7 +115,7 @@ public class KeysInventory implements InventoryHolder {
         SkullMeta meta = (SkullMeta) head.getItemMeta();
         meta.setPlayerProfile(player.getPlayerProfile());
 
-        String infoName = plugin.getMessagesConfig().getString("gui.info-item");
+        String infoName = plugin.getConfigUtil().getInfoItemName();
         if (infoName != null) {
             infoName = infoName.replace("{player_name}", player.getName());
             plugin.getChatRenderer().setDisplayName(meta, MessageUtil.parse(infoName));
@@ -132,7 +129,7 @@ public class KeysInventory implements InventoryHolder {
         ItemStack item = keyData.keyItem().clone();
         ItemMeta meta = item.getItemMeta();
 
-        String nameFormat = plugin.getMessagesConfig().getString("gui.key-name");
+        String nameFormat = plugin.getConfigUtil().getKeyNameFormat();
         if (nameFormat != null) {
             String name = nameFormat
                     .replace("{amount}", String.valueOf(amount))
@@ -142,9 +139,9 @@ public class KeysInventory implements InventoryHolder {
 
         List<String> lore;
         if (amount > 0)
-            lore = plugin.getMessagesConfig().getStringList("gui.has-key-lore");
+            lore = plugin.getConfigUtil().getHasKeyLore();
         else
-            lore = plugin.getMessagesConfig().getStringList("gui.no-key-lore");
+            lore = plugin.getConfigUtil().getNoKeyLore();
 
         if (lore != null) {
             List<String> parsedLore = new ArrayList<>();

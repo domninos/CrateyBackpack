@@ -8,3 +8,15 @@ visible-keys: []
 
 gui:
   filler-material: "LIGHT_BLUE_STAINED_GLASS_PANE"
+  title: "<gradient:#00AAFF:#55FFFF>Your Backpack</gradient>"
+  key-name: "<gold>{amount}x <key_name></gold>"
+  info-item: "<gold><player_name>'s Key Backpack</gold>"
+  filler-name: " "
+  has-key-lore:
+    - "<green>CLAIM!</green>"
+    - "<gray>Click to receive this key.</gray>"
+  no-key-lore:
+    - "<gray>You do not have any <key_name> keys.</gray>"
+  open-sound: "BLOCK_CHEST_OPEN"
+  claim-sound: "ENTITY_ITEM_PICKUP"
+  fail-sound: "BLOCK_NOTE_BLOCK_BASS"

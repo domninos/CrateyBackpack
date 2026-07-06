@@ -15,6 +15,16 @@ public class ConfigUtil {
     private List<String> visibleKeys;
     private Material fillerMaterial;
 
+    private String guiTitle;
+    private String keyNameFormat;
+    private String infoItemName;
+    private String fillerName;
+    private List<String> hasKeyLore;
+    private List<String> noKeyLore;
+    private String openSound;
+    private String claimSound;
+    private String failSound;
+
     public ConfigUtil(CrateyBackpack plugin) {
         this.plugin = plugin;
     }
@@ -31,6 +41,16 @@ public class ConfigUtil {
             visibleKeys.clear();
             visibleKeys = null;
         }
+
+        if (hasKeyLore != null) {
+            hasKeyLore.clear();
+            hasKeyLore = null;
+        }
+
+        if (noKeyLore != null) {
+            noKeyLore.clear();
+            noKeyLore = null;
+        }
     }
 
     public void load() {
@@ -44,6 +64,16 @@ public class ConfigUtil {
         this.fillerMaterial = Material.matchMaterial(fillerName);
         if (this.fillerMaterial == null)
             this.fillerMaterial = Material.LIGHT_BLUE_STAINED_GLASS_PANE;
+
+        this.guiTitle = getAndDefaultString("gui.title", "<gradient:#00AAFF:#55FFFF>Your Backpack</gradient>", savedDefaults::getAndAdd);
+        this.keyNameFormat = getAndDefaultString("gui.key-name", "<gold>{amount}x <key_name></gold>", savedDefaults::getAndAdd);
+        this.infoItemName = getAndDefaultString("gui.info-item", "<gold><player_name>'s Key Backpack</gold>", savedDefaults::getAndAdd);
+        this.fillerName = getAndDefaultString("gui.filler-name", " ", savedDefaults::getAndAdd);
+        this.hasKeyLore = plugin.getConfig().getStringList("gui.has-key-lore");
+        this.noKeyLore = plugin.getConfig().getStringList("gui.no-key-lore");
+        this.openSound = getAndDefaultString("gui.open-sound", "BLOCK_CHEST_OPEN", savedDefaults::getAndAdd);
+        this.claimSound = getAndDefaultString("gui.claim-sound", "ENTITY_ITEM_PICKUP", savedDefaults::getAndAdd);
+        this.failSound = getAndDefaultString("gui.fail-sound", "BLOCK_NOTE_BLOCK_BASS", savedDefaults::getAndAdd);
 
         if (savedDefaults.get() > 0) {
             plugin.saveConfig();
@@ -104,5 +134,41 @@ public class ConfigUtil {
 
     public Material getFillerMaterial() {
         return fillerMaterial;
+    }
+
+    public String getGuiTitle() {
+        return guiTitle;
+    }
+
+    public String getKeyNameFormat() {
+        return keyNameFormat;
+    }
+
+    public String getInfoItemName() {
+        return infoItemName;
+    }
+
+    public String getFillerName() {
+        return fillerName;
+    }
+
+    public List<String> getHasKeyLore() {
+        return hasKeyLore;
+    }
+
+    public List<String> getNoKeyLore() {
+        return noKeyLore;
+    }
+
+    public String getOpenSound() {
+        return openSound;
+    }
+
+    public String getClaimSound() {
+        return claimSound;
+    }
+
+    public String getFailSound() {
+        return failSound;
     }
 }

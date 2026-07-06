@@ -4,7 +4,6 @@ import net.omni.crateyBackpack.CrateyBackpack;
 import net.omni.crateyBackpack.inventory.KeysInventory;
 import net.omni.crateyBackpack.managers.BackpackManager;
 import net.omni.crateyBackpack.managers.CrateyHook;
-import net.omni.crateyBackpack.managers.CrateyHook;
 import net.omni.crateyBackpack.util.SoundUtil;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -54,7 +53,7 @@ public class InventoryListener implements Listener {
 
         int amount = backpackManager.getAmount(player.getUniqueId(), keyId);
         if (amount <= 0) {
-            String failSound = plugin.getMessagesConfig().getString("gui.fail-sound");
+            String failSound = plugin.getConfigUtil().getFailSound();
             if (failSound != null)
                 SoundUtil.playSound(player, failSound);
             return;
@@ -74,7 +73,7 @@ public class InventoryListener implements Listener {
             player.getWorld().dropItem(player.getLocation(), leftover.get(0));
         }
 
-        String claimSound = plugin.getMessagesConfig().getString("gui.claim-sound");
+        String claimSound = plugin.getConfigUtil().getClaimSound();
         if (claimSound != null)
             SoundUtil.playSound(player, claimSound);
     }
