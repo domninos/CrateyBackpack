@@ -8,9 +8,8 @@ visible-keys: []
 
 gui:
   filler-material: "LIGHT_BLUE_STAINED_GLASS_PANE"
-  title: "<gradient:#00AAFF:#55FFFF>Your Backpack</gradient>"
-  key-name: "<gold>{amount}x {key_name}</gold>"
-  info-item: "<gold>{player_name}'s Key Backpack</gold>"
+  title: "<gradient:#00AAFF:#55FFFF>Your Keys Backpack</gradient>"
+  key-name: "<gray>{amount}x</gray> {key_name}"
   filler-name: " "
   has-key-lore:
     - "<green>CLAIM!</green>"
