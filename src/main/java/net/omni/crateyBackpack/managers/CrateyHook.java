@@ -26,16 +26,33 @@ public class CrateyHook {
         }
 
         this.crateManager = Cratey.getInstance().getCrateManager();
-        plugin.getLogger().info("Successfully hooked into Cratey.");
-    }
 
-    public boolean isHooked() {
-        return crateManager != null;
+        List<String> visible = plugin.getConfigUtil().getVisibleKeys();
+        Set<String> existing = new HashSet<>(visible);
+        int added = 0;
+
+        for (String keyId : getKeyTypes().keySet()) {
+            if (!existing.contains(keyId)) {
+                visible.add(keyId);
+                added++;
+            }
+        }
+
+        if (added > 0) {
+            plugin.getConfig().set("visible-keys", visible);
+            plugin.saveConfig();
+            plugin.sendConsole("<green>Added " + added + " new key type(s) to visible-keys.</green>");
+        }
+
+        existing.clear();
+
+        plugin.getLogger().info("Successfully hooked into Cratey.");
     }
 
     public Map<String, CrateKeyData> getKeyTypes() {
         Map<String, CrateKeyData> result = new LinkedHashMap<>();
-        if (crateManager == null) return result;
+        if (crateManager == null)
+            return result;
 
         for (Map.Entry<String, Crates.CrateData> entry : crateManager.getCrateData().entrySet()) {
             Crates.CrateData data = entry.getValue();
@@ -45,13 +62,18 @@ public class CrateyHook {
         return result;
     }
 
-    public Optional<CrateKeyData> getKeyType(String keyId) {
-        return Optional.ofNullable(getKeyTypes().get(keyId));
+    public boolean isHooked() {
+        return crateManager != null;
     }
 
     public Optional<ItemStack> getKeyItem(String keyId) {
         return getKeyType(keyId).map(data -> data.keyItem().clone());
     }
 
-    public record CrateKeyData(String id, String name, ItemStack keyItem) {}
+    public Optional<CrateKeyData> getKeyType(String keyId) {
+        return Optional.ofNullable(getKeyTypes().get(keyId));
+    }
+
+    public record CrateKeyData(String id, String name, ItemStack keyItem) {
+    }
 }
