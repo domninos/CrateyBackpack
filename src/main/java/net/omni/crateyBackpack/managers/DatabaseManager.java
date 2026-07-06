@@ -3,12 +3,14 @@ package net.omni.crateyBackpack.managers;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import net.omni.crateyBackpack.CrateyBackpack;
+import org.bukkit.Bukkit;
 
 import java.io.File;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class DatabaseManager {
 
@@ -55,6 +57,29 @@ public class DatabaseManager {
         }
     }
 
+    public void addKey(UUID uuid, String keyId, int amount) {
+        if (amount <= 0) return;
+        String sql = "INSERT INTO player_keys (uuid, key_id, amount) VALUES (?, ?, ?) " +
+                "ON CONFLICT(uuid, key_id) DO UPDATE SET amount = amount + ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, uuid.toString());
+            stmt.setString(2, keyId);
+            stmt.setInt(3, amount);
+            stmt.setInt(4, amount);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Could not add key for " + uuid + ": " + e.getMessage());
+        }
+    }
+
+    public CompletableFuture<Map<String, Integer>> loadPlayerKeysAsync(UUID uuid) {
+        CompletableFuture<Map<String, Integer>> future = new CompletableFuture<>();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
+                future.complete(loadPlayerKeys(uuid)));
+        return future;
+    }
+
     public Map<String, Integer> loadPlayerKeys(UUID uuid) {
         Map<String, Integer> keys = new HashMap<>();
         String sql = "SELECT key_id, amount FROM player_keys WHERE uuid = ?";
@@ -69,6 +94,15 @@ public class DatabaseManager {
             plugin.getLogger().severe("Could not load keys for " + uuid + ": " + e.getMessage());
         }
         return keys;
+    }
+
+    public CompletableFuture<Void> savePlayerKeysAsync(UUID uuid, Map<String, Integer> keys) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            savePlayerKeys(uuid, keys);
+            future.complete(null);
+        });
+        return future;
     }
 
     public void savePlayerKeys(UUID uuid, Map<String, Integer> keys) {
@@ -102,20 +136,13 @@ public class DatabaseManager {
         }
     }
 
-    public void addKey(UUID uuid, String keyId, int amount) {
-        if (amount <= 0) return;
-        String sql = "INSERT INTO player_keys (uuid, key_id, amount) VALUES (?, ?, ?) " +
-                "ON CONFLICT(uuid, key_id) DO UPDATE SET amount = amount + ?";
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, uuid.toString());
-            stmt.setString(2, keyId);
-            stmt.setInt(3, amount);
-            stmt.setInt(4, amount);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            plugin.getLogger().severe("Could not add key for " + uuid + ": " + e.getMessage());
-        }
+    public CompletableFuture<Void> setKeyAsync(UUID uuid, String keyId, int amount) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            setKey(uuid, keyId, amount);
+            future.complete(null);
+        });
+        return future;
     }
 
     public void setKey(UUID uuid, String keyId, int amount) {
@@ -145,6 +172,15 @@ public class DatabaseManager {
         } catch (SQLException e) {
             plugin.getLogger().severe("Could not remove key for " + uuid + ": " + e.getMessage());
         }
+    }
+
+    public CompletableFuture<Void> removeKeyAsync(UUID uuid, String keyId) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            removeKey(uuid, keyId);
+            future.complete(null);
+        });
+        return future;
     }
 
     public void close() {

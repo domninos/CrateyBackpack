@@ -1,8 +1,8 @@
 package net.omni.crateyBackpack.data;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerKeys {
     private final UUID uuid;
@@ -10,12 +10,12 @@ public class PlayerKeys {
 
     public PlayerKeys(UUID uuid) {
         this.uuid = uuid;
-        this.keys = new HashMap<>();
+        this.keys = new ConcurrentHashMap<>();
     }
 
     public PlayerKeys(UUID uuid, Map<String, Integer> keys) {
         this.uuid = uuid;
-        this.keys = new HashMap<>(keys);
+        this.keys = new ConcurrentHashMap<>(keys);
     }
 
     public UUID getUuid() {

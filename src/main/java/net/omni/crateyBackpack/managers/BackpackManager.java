@@ -3,9 +3,11 @@ package net.omni.crateyBackpack.managers;
 import net.omni.crateyBackpack.CrateyBackpack;
 import net.omni.crateyBackpack.data.PlayerKeys;
 import net.omni.crateyBackpack.inventory.KeysInventory;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,14 +32,23 @@ public class BackpackManager {
         new BukkitRunnable() {
             @Override
             public void run() {
-                saveAll();
+                saveAllAsync();
             }
-        }.runTaskTimerAsynchronously(plugin, interval * 20L, interval * 20L);
+        }.runTaskTimer(plugin, interval * 20L, interval * 20L);
     }
 
-    public void saveAll() {
-        for (Map.Entry<UUID, PlayerKeys> entry : cache.entrySet())
-            databaseManager.savePlayerKeys(entry.getKey(), entry.getValue().getKeys());
+    public void saveAllAsync() {
+        for (Map.Entry<UUID, PlayerKeys> entry : cache.entrySet()) {
+            UUID uuid = entry.getKey();
+            Map<String, Integer> keys = new HashMap<>(entry.getValue().getKeys());
+            databaseManager.savePlayerKeysAsync(uuid, keys);
+        }
+    }
+
+    public void preloadPlayer(UUID uuid) {
+        databaseManager.loadPlayerKeysAsync(uuid).thenAccept(keys ->
+                Bukkit.getScheduler().runTask(plugin, () ->
+                        cache.putIfAbsent(uuid, new PlayerKeys(uuid, keys))));
     }
 
     public Map<String, Integer> getKeys(UUID uuid) {
@@ -59,8 +70,14 @@ public class BackpackManager {
         if (amount <= 0) return;
         PlayerKeys data = getOrLoad(uuid);
         data.addAmount(keyId, amount);
-        databaseManager.addKey(uuid, keyId, amount);
+        databaseManager.setKeyAsync(uuid, keyId, data.getAmount(keyId));
         refreshInventory(uuid);
+    }
+
+    public void refreshInventory(UUID uuid) {
+        KeysInventory inv = inventoryCache.get(uuid);
+        if (inv != null)
+            inv.refresh();
     }
 
     public boolean takeKey(UUID uuid, String keyId, int amount) {
@@ -70,9 +87,9 @@ public class BackpackManager {
         if (success) {
             int remaining = data.getAmount(keyId);
             if (remaining <= 0)
-                databaseManager.removeKey(uuid, keyId);
+                databaseManager.removeKeyAsync(uuid, keyId);
             else
-                databaseManager.setKey(uuid, keyId, remaining);
+                databaseManager.setKeyAsync(uuid, keyId, remaining);
             refreshInventory(uuid);
         }
         return success;
@@ -81,7 +98,10 @@ public class BackpackManager {
     public void setKey(UUID uuid, String keyId, int amount) {
         PlayerKeys data = getOrLoad(uuid);
         data.setAmount(keyId, amount);
-        databaseManager.setKey(uuid, keyId, amount);
+        if (amount <= 0)
+            databaseManager.removeKeyAsync(uuid, keyId);
+        else
+            databaseManager.setKeyAsync(uuid, keyId, amount);
         refreshInventory(uuid);
     }
 
@@ -106,16 +126,15 @@ public class BackpackManager {
                 uuid -> new KeysInventory(plugin, player, this, plugin.getCrateyHook()));
     }
 
-    public void refreshInventory(UUID uuid) {
-        KeysInventory inv = inventoryCache.get(uuid);
-        if (inv != null)
-            inv.refresh();
-    }
-
     public void onDisable() {
         saveAll();
         cache.clear();
         inventoryCache.clear();
         databaseManager.close();
+    }
+
+    public void saveAll() {
+        for (Map.Entry<UUID, PlayerKeys> entry : cache.entrySet())
+            databaseManager.savePlayerKeys(entry.getKey(), entry.getValue().getKeys());
     }
 }

@@ -20,7 +20,7 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        plugin.getBackpackManager().getOrLoad(event.getPlayer().getUniqueId());
+        plugin.getBackpackManager().preloadPlayer(event.getPlayer().getUniqueId());
     }
 
     @EventHandler
