@@ -1,16 +1,16 @@
 package net.omni.crateyBackpack.inventory;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.omni.crateyBackpack.CrateyBackpack;
-import net.omni.crateyBackpack.managers.BackpackManager;
 import net.omni.crateyBackpack.hook.CrateyHook;
+import net.omni.crateyBackpack.managers.BackpackManager;
 import net.omni.crateyBackpack.messages.MessageUtil;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,9 +67,6 @@ public class KeysInventory implements InventoryHolder {
         for (int i = 0; i < size; i++)
             inv.setItem(i, filler);
 
-        ItemStack head = createHead();
-        inv.setItem(0, head);
-
         keySlots.clear();
         int keyIndex = 0;
         for (int row = 1; row < totalRows; row++) {
@@ -92,15 +89,6 @@ public class KeysInventory implements InventoryHolder {
         return inv;
     }
 
-    public void refresh() {
-        Map<String, Integer> amounts = backpackManager.getKeys(player.getUniqueId());
-        for (int i = 0; i < keySlots.size(); i++) {
-            CrateyHook.CrateKeyData keyData = displayKeys.get(i);
-            int amount = amounts.getOrDefault(keyData.id(), 0);
-            inventory.setItem(keySlots.get(i), createKeyItem(keyData, amount));
-        }
-    }
-
     private ItemStack createFiller() {
         ItemStack item = new ItemStack(plugin.getConfigUtil().getFillerMaterial());
         ItemMeta meta = item.getItemMeta();
@@ -108,21 +96,6 @@ public class KeysInventory implements InventoryHolder {
         plugin.getChatRenderer().setDisplayName(meta, MessageUtil.parse(name));
         item.setItemMeta(meta);
         return item;
-    }
-
-    private ItemStack createHead() {
-        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
-        SkullMeta meta = (SkullMeta) head.getItemMeta();
-        meta.setPlayerProfile(player.getPlayerProfile());
-
-        String infoName = plugin.getConfigUtil().getInfoItemName();
-        if (infoName != null) {
-            infoName = infoName.replace("{player_name}", player.getName());
-            plugin.getChatRenderer().setDisplayName(meta, MessageUtil.parse(infoName));
-        }
-
-        head.setItemMeta(meta);
-        return head;
     }
 
     private ItemStack createKeyItem(CrateyHook.CrateKeyData keyData, int amount) {
@@ -139,24 +112,39 @@ public class KeysInventory implements InventoryHolder {
             plugin.getChatRenderer().setDisplayName(meta, MessageUtil.parse(name));
         }
 
-        List<String> lore;
-        if (amount > 0)
-            lore = plugin.getConfigUtil().getHasKeyLore();
-        else
-            lore = plugin.getConfigUtil().getNoKeyLore();
+        List<String> allLore = new ArrayList<>();
 
-        if (lore != null) {
-            List<String> parsedLore = new ArrayList<>();
-            for (String line : lore) {
-                parsedLore.add(MessageUtil.parse(line
+        List<Component> keyLore = item.lore();
+        if (keyLore != null) {
+            for (Component comp : keyLore)
+                allLore.add(LegacyComponentSerializer.legacySection().serialize(comp));
+        }
+
+        List<String> configLore = amount > 0
+                ? plugin.getConfigUtil().getHasKeyLore()
+                : plugin.getConfigUtil().getNoKeyLore();
+
+        if (configLore != null) {
+            for (String line : configLore) {
+                allLore.add(MessageUtil.parse(line
                         .replace("{amount}", String.valueOf(amount))
                         .replace("{key_name}", keyData.name())));
             }
-            plugin.getChatRenderer().setLore(meta, parsedLore);
         }
+
+        plugin.getChatRenderer().setLore(meta, allLore);
 
         item.setItemMeta(meta);
         return item;
+    }
+
+    public void refresh() {
+        Map<String, Integer> amounts = backpackManager.getKeys(player.getUniqueId());
+        for (int i = 0; i < keySlots.size(); i++) {
+            CrateyHook.CrateKeyData keyData = displayKeys.get(i);
+            int amount = amounts.getOrDefault(keyData.id(), 0);
+            inventory.setItem(keySlots.get(i), createKeyItem(keyData, amount));
+        }
     }
 
     @Override
