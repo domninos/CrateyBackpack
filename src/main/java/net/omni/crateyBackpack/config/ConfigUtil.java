@@ -66,8 +66,8 @@ public class ConfigUtil {
             this.fillerMaterial = Material.LIGHT_BLUE_STAINED_GLASS_PANE;
 
         this.guiTitle = getAndDefaultString("gui.title", "<gradient:#00AAFF:#55FFFF>Your Backpack</gradient>", savedDefaults::getAndAdd);
-        this.keyNameFormat = getAndDefaultString("gui.key-name", "<gold>{amount}x <key_name></gold>", savedDefaults::getAndAdd);
-        this.infoItemName = getAndDefaultString("gui.info-item", "<gold><player_name>'s Key Backpack</gold>", savedDefaults::getAndAdd);
+        this.keyNameFormat = getAndDefaultString("gui.key-name", "<gold>{amount}x {key_name}</gold>", savedDefaults::getAndAdd);
+        this.infoItemName = getAndDefaultString("gui.info-item", "<gold>{player_name}'s Key Backpack</gold>", savedDefaults::getAndAdd);
         this.fillerName = getAndDefaultString("gui.filler-name", " ", savedDefaults::getAndAdd);
         this.hasKeyLore = plugin.getConfig().getStringList("gui.has-key-lore");
         this.noKeyLore = plugin.getConfig().getStringList("gui.no-key-lore");
