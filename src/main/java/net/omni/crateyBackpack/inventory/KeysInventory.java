@@ -1,11 +1,13 @@
 package net.omni.crateyBackpack.inventory;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.omni.crateyBackpack.CrateyBackpack;
 import net.omni.crateyBackpack.hook.CrateyHook;
 import net.omni.crateyBackpack.managers.BackpackManager;
 import net.omni.crateyBackpack.messages.MessageUtil;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -19,6 +21,11 @@ import java.util.UUID;
 
 public class KeysInventory implements InventoryHolder {
 
+    private static final int INVENTORY_SIZE = 27;
+    private static final int ITEMS_PER_PAGE = 14;
+    private static final int PREV_SLOT = 25;
+    private static final int NEXT_SLOT = 26;
+
     private final CrateyBackpack plugin;
     private final Player player;
     private final BackpackManager backpackManager;
@@ -27,16 +34,17 @@ public class KeysInventory implements InventoryHolder {
 
     private final List<Integer> keySlots = new ArrayList<>();
     private final List<CrateyHook.CrateKeyData> displayKeys = new ArrayList<>();
+    private int currentPage = 0;
+    private ItemStack cachedFiller;
+    private ItemStack cachedPrevArrow;
+    private ItemStack cachedNextArrow;
 
     public KeysInventory(CrateyBackpack plugin, Player player, BackpackManager backpackManager, CrateyHook crateyHook) {
         this.plugin = plugin;
         this.player = player;
         this.backpackManager = backpackManager;
         this.crateyHook = crateyHook;
-        this.inventory = createInventory();
-    }
 
-    private Inventory createInventory() {
         Map<String, CrateyHook.CrateKeyData> allTypes = crateyHook.getKeyTypes();
         List<String> visibleKeys = plugin.getConfigUtil().getVisibleKeys();
 
@@ -53,49 +61,79 @@ public class KeysInventory implements InventoryHolder {
         if (displayKeys.isEmpty())
             displayKeys.addAll(allTypes.values());
 
-        Map<String, Integer> playerKeyAmounts = backpackManager.getKeys(player.getUniqueId());
-
-        int keyRows = Math.max(1, (int) Math.ceil(displayKeys.size() / 7.0));
-        int totalRows = Math.clamp(keyRows + 1, 1, 6);
-        int size = totalRows * 9;
-
         String title = plugin.getConfigUtil().getGuiTitle();
+        this.inventory = plugin.getChatRenderer().createInventory(this, INVENTORY_SIZE, MessageUtil.parse(title));
 
-        Inventory inv = plugin.getChatRenderer().createInventory(this, size, MessageUtil.parse(title));
-
-        ItemStack filler = createFiller();
-        for (int i = 0; i < size; i++)
-            inv.setItem(i, filler);
-
-        keySlots.clear();
-        int keyIndex = 0;
-        for (int row = 1; row < totalRows; row++) {
-            int remaining = displayKeys.size() - keyIndex;
-            if (remaining <= 0) break;
-
-            int itemsInRow = Math.min(7, remaining);
-            int startSlot = row * 9 + 1 + (7 - itemsInRow) / 2;
-
-            for (int i = 0; i < itemsInRow; i++) {
-                CrateyHook.CrateKeyData keyData = displayKeys.get(keyIndex);
-                int amount = playerKeyAmounts.getOrDefault(keyData.id(), 0);
-                int slot = startSlot + i;
-                inv.setItem(slot, createKeyItem(keyData, amount));
-                keySlots.add(slot);
-                keyIndex++;
-            }
-        }
-
-        return inv;
+        buildPage(0);
     }
 
-    private ItemStack createFiller() {
-        ItemStack item = new ItemStack(plugin.getConfigUtil().getFillerMaterial());
+    public void buildPage(int page) {
+        this.currentPage = page;
+        keySlots.clear();
+
+        ItemStack filler = createFiller();
+        for (int i = 0; i < INVENTORY_SIZE; i++)
+            inventory.setItem(i, filler);
+
+        Map<String, Integer> amounts = backpackManager.getKeys(player.getUniqueId());
+        int totalPages = getTotalPages();
+        int start = page * ITEMS_PER_PAGE;
+        int end = Math.min(start + ITEMS_PER_PAGE, displayKeys.size());
+
+        int keyIndex = 0;
+        for (int i = start; i < end; i++) {
+            CrateyHook.CrateKeyData keyData = displayKeys.get(i);
+            int amount = amounts.getOrDefault(keyData.id(), 0);
+
+            int row = keyIndex / 7;
+            int col = keyIndex % 7;
+            int itemsInRow = Math.min(7, end - start - keyIndex);
+            int startSlot = row * 9 + 1 + (7 - itemsInRow) / 2;
+
+            int slot = startSlot + col;
+            inventory.setItem(slot, createKeyItem(keyData, amount));
+            keySlots.add(slot);
+            keyIndex++;
+        }
+
+        if (page > 0)
+            inventory.setItem(PREV_SLOT, createNavItem("<gold>← Previous</gold>"));
+
+        if (page < totalPages - 1)
+            inventory.setItem(NEXT_SLOT, createNavItem("<gold>Next →</gold>"));
+    }
+
+    private ItemStack createNavItem(String name) {
+        if (name.contains("Previous")) {
+            if (cachedPrevArrow != null)
+                return cachedPrevArrow;
+            cachedPrevArrow = buildArrow(name);
+            return cachedPrevArrow;
+        }
+        if (cachedNextArrow != null)
+            return cachedNextArrow;
+        cachedNextArrow = buildArrow(name);
+        return cachedNextArrow;
+    }
+
+    private ItemStack buildArrow(String name) {
+        ItemStack item = new ItemStack(Material.ARROW);
         ItemMeta meta = item.getItemMeta();
-        String name = plugin.getConfigUtil().getFillerName();
         plugin.getChatRenderer().setDisplayName(meta, MessageUtil.parse(name));
         item.setItemMeta(meta);
         return item;
+    }
+
+    private ItemStack createFiller() {
+        if (cachedFiller != null)
+            return cachedFiller;
+
+        cachedFiller = new ItemStack(plugin.getConfigUtil().getFillerMaterial());
+        ItemMeta meta = cachedFiller.getItemMeta();
+        String name = plugin.getConfigUtil().getFillerName();
+        plugin.getChatRenderer().setDisplayName(meta, MessageUtil.parse(name));
+        cachedFiller.setItemMeta(meta);
+        return cachedFiller;
     }
 
     private ItemStack createKeyItem(CrateyHook.CrateKeyData keyData, int amount) {
@@ -103,13 +141,30 @@ public class KeysInventory implements InventoryHolder {
         ItemMeta meta = item.getItemMeta();
 
         String nameFormat = plugin.getConfigUtil().getKeyNameFormat();
+        Component originalName = meta.customName();
+        if (originalName == null)
+            originalName = Component.text(keyData.name());
 
         if (nameFormat != null) {
-            String name = nameFormat
-                    .replace("{amount}", String.valueOf(amount))
-                    .replace("{key_name}", keyData.name());
+            int idx = nameFormat.indexOf("{key_name}");
+            if (idx >= 0) {
+                String prefixStr = nameFormat.substring(0, idx)
+                        .replace("{amount}", String.valueOf(amount));
+                String suffixStr = nameFormat.substring(idx + "{key_name}".length())
+                        .replace("{amount}", String.valueOf(amount));
 
-            plugin.getChatRenderer().setDisplayName(meta, MessageUtil.parse(name));
+                Component prefix = prefixStr.isEmpty() ? Component.empty()
+                        : MiniMessage.miniMessage().deserialize(prefixStr);
+                Component suffix = suffixStr.isEmpty() ? Component.empty()
+                        : MiniMessage.miniMessage().deserialize(suffixStr);
+
+                meta.customName(prefix.append(originalName).append(suffix));
+            } else {
+                String name = nameFormat
+                        .replace("{amount}", String.valueOf(amount))
+                        .replace("{key_name}", keyData.name());
+                plugin.getChatRenderer().setDisplayName(meta, MessageUtil.parse(name));
+            }
         }
 
         List<String> allLore = new ArrayList<>();
@@ -139,12 +194,31 @@ public class KeysInventory implements InventoryHolder {
     }
 
     public void refresh() {
-        Map<String, Integer> amounts = backpackManager.getKeys(player.getUniqueId());
-        for (int i = 0; i < keySlots.size(); i++) {
-            CrateyHook.CrateKeyData keyData = displayKeys.get(i);
-            int amount = amounts.getOrDefault(keyData.id(), 0);
-            inventory.setItem(keySlots.get(i), createKeyItem(keyData, amount));
-        }
+        buildPage(currentPage);
+    }
+
+    public void nextPage() {
+        if (currentPage < getTotalPages() - 1)
+            buildPage(currentPage + 1);
+    }
+
+    public void prevPage() {
+        if (currentPage > 0)
+            buildPage(currentPage - 1);
+    }
+
+    public String getKeyIdAtSlot(int slot) {
+        int idx = keySlots.indexOf(slot);
+        if (idx < 0) return null;
+        return displayKeys.get(idx).id();
+    }
+
+    public int getCurrentPage() {
+        return currentPage;
+    }
+
+    public int getTotalPages() {
+        return (int) Math.ceil((double) displayKeys.size() / ITEMS_PER_PAGE);
     }
 
     @Override
