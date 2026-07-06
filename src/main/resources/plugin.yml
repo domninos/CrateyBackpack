@@ -3,8 +3,9 @@ description: $description
 version: '${version}'
 
 main: net.omni.crateyBackpack.CrateyBackpack
-paperPluginLoader: net.omni.crateyBackpack.CrateyBackpackLoader
-api-version: '1.21.11'
+api-version: '1.13'
 load: POSTWORLD
+
+depend: [ Cratey ]
 
 authors: [ domninos ]
