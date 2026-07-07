@@ -31,6 +31,8 @@ public class ConfigUtil {
     public void reloadConfig() {
         flush();
 
+        plugin.saveDefaultConfig();
+
         plugin.reloadConfig();
         load();
     }
