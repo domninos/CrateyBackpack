@@ -232,7 +232,16 @@ public class KeysCommand implements CommandExecutor {
             return;
         }
 
-        String keyId = args[1].toLowerCase();
+        String keyId = args[1].toLowerCase().trim();
+
+        if (keyId.equals("all")) {
+            plugin.getConfigUtil().addAll();
+            plugin.getBackpackManager().invalidateInventories();
+            plugin.sendMessage(sender,
+                    Messages.VISIBILITY_CHANGED.replace("key_name", "All keys", "visibility", "visible"));
+            return;
+        }
+
         if (plugin.getCrateyHook().getKeyType(keyId).isEmpty()) {
             plugin.sendMessage(sender, Messages.KEY_NOT_FOUND.replace("key_id", keyId));
             return;
@@ -255,7 +264,20 @@ public class KeysCommand implements CommandExecutor {
             return;
         }
 
-        String keyId = args[1].toLowerCase();
+        String keyId = args[1].toLowerCase().trim();
+
+        if (keyId.equals("all")) {
+            plugin.getConfigUtil().removeAll();
+            plugin.getBackpackManager().invalidateInventories();
+            plugin.sendMessage(sender,
+                    Messages.VISIBILITY_CHANGED.replace("key_name", "All keys", "visibility", "hidden"));
+            return;
+        }
+
+        if (plugin.getCrateyHook().getKeyType(keyId).isEmpty()) {
+            plugin.sendMessage(sender, Messages.KEY_NOT_FOUND.replace("key_id", keyId));
+            return;
+        }
 
         if (plugin.getConfigUtil().getVisibleKeys().isEmpty()) {
             for (String id : plugin.getCrateyHook().getKeyTypes().keySet())
@@ -281,13 +303,12 @@ public class KeysCommand implements CommandExecutor {
         }
 
         List<String> visible = plugin.getConfigUtil().getVisibleKeys();
-        boolean allVisible = visible.isEmpty();
 
         StringBuilder msg = new StringBuilder("<gold>=== Key Types ===</gold>\n");
         for (Map.Entry<String, CrateyHook.CrateKeyData> entry : types.entrySet()) {
             String id = entry.getKey();
             String name = entry.getValue().name();
-            boolean isVisible = allVisible || visible.contains(id);
+            boolean isVisible = visible.contains(id);
             msg.append(" <gray>-</gray> <white>")
                     .append(name)
                     .append("</white> <dark_gray>(</dark_gray><gray>")
@@ -341,16 +362,21 @@ public class KeysCommand implements CommandExecutor {
                         && sender.hasPermission("crateybackpack.admin")) {
                     if (args.length == 2)
                         return null;
-                    else if (args.length == 3)
+                    else if (args.length == 3) {
                         completions.addAll(plugin.getCrateyHook().getKeyTypes().keySet());
-                    else if (args.length == 4)
+
+                        StringUtil.copyPartialMatches(args[2], subcommands, completions);
+
+                    } else if (args.length == 4)
                         completions.add("[amount]");
 
                     return completions;
                 } else if ((args[0].equalsIgnoreCase("show") || args[0].equalsIgnoreCase("hide"))
                         && sender.hasPermission("crateybackpack.admin")) {
-                    if (args.length == 2)
+                    if (args.length == 2) {
                         completions.addAll(plugin.getCrateyHook().getKeyTypes().keySet());
+                        completions.add("all");
+                    }
 
                     return completions;
                 }

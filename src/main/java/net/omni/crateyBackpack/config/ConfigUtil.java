@@ -117,12 +117,29 @@ public class ConfigUtil {
     public void addVisibleKey(String keyId) {
         if (!visibleKeys.contains(keyId))
             visibleKeys.add(keyId);
+
+        plugin.getConfig().set("visible-keys", visibleKeys);
+        plugin.saveConfig();
+    }
+
+    public void addAll() {
+        for (String id : plugin.getCrateyHook().getKeyTypes().keySet()) {
+            if (!visibleKeys.contains(id))
+                visibleKeys.add(id);
+        }
+
         plugin.getConfig().set("visible-keys", visibleKeys);
         plugin.saveConfig();
     }
 
     public void removeVisibleKey(String keyId) {
         visibleKeys.remove(keyId);
+        plugin.getConfig().set("visible-keys", visibleKeys);
+        plugin.saveConfig();
+    }
+
+    public void removeAll() {
+        visibleKeys.clear();
         plugin.getConfig().set("visible-keys", visibleKeys);
         plugin.saveConfig();
     }
