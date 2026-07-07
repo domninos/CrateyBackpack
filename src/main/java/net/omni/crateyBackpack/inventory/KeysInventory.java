@@ -47,7 +47,7 @@ public class KeysInventory implements InventoryHolder {
         this.crateyHook = crateyHook;
 
         String title = plugin.getConfigUtil().getGuiTitle();
-        this.inventory = plugin.getChatRenderer().createInventory(this, INVENTORY_SIZE, MessageUtil.parse(title));
+        this.inventory = plugin.getChatRenderer().createInventory(this, INVENTORY_SIZE, title);
 
         rebuildDisplayKeys();
     }
@@ -168,13 +168,6 @@ public class KeysInventory implements InventoryHolder {
         }
 
         List<String> allLore = new ArrayList<>();
-
-        List<Component> keyLore = item.lore();
-        if (keyLore != null) {
-            for (Component comp : keyLore)
-                allLore.add(LegacyComponentSerializer.legacySection().serialize(comp));
-        }
-
         List<String> configLore = amount > 0
                 ? plugin.getConfigUtil().getHasKeyLore()
                 : plugin.getConfigUtil().getNoKeyLore();
@@ -186,6 +179,15 @@ public class KeysInventory implements InventoryHolder {
                         .replace("{key_name}", keyData.name())));
             }
         }
+
+        List<Component> keyLore = item.lore();
+        if (keyLore != null) {
+            allLore.add(" ");
+
+            for (Component comp : keyLore)
+                allLore.add(LegacyComponentSerializer.legacySection().serialize(comp));
+        }
+
 
         plugin.getChatRenderer().setLore(meta, allLore);
 
