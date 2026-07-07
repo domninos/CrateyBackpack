@@ -58,20 +58,14 @@ public class KeysInventory implements InventoryHolder {
         Map<String, CrateyHook.CrateKeyData> allTypes = crateyHook.getKeyTypes();
         List<String> visibleKeys = plugin.getConfigUtil().getVisibleKeys();
 
-        if (visibleKeys.isEmpty()) {
-            displayKeys.addAll(allTypes.values());
-        } else {
-            for (String id : visibleKeys) {
-                CrateyHook.CrateKeyData type = allTypes.get(id);
-                if (type != null)
-                    displayKeys.add(type);
-            }
+        for (String id : visibleKeys) {
+            CrateyHook.CrateKeyData type = allTypes.get(id);
+            if (type != null)
+                displayKeys.add(type);
         }
 
-        if (displayKeys.isEmpty())
-            displayKeys.addAll(allTypes.values());
-
-        displayKeys.sort(Comparator.comparing(CrateyHook.CrateKeyData::name));
+        if (!displayKeys.isEmpty())
+            displayKeys.sort(Comparator.comparing(CrateyHook.CrateKeyData::name));
 
         buildPage(0);
     }
