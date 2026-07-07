@@ -6,9 +6,11 @@ auto-save-interval: 300
 
 visible-keys: []
 
+known-keys: []
+
 gui:
   filler-material: "LIGHT_BLUE_STAINED_GLASS_PANE"
-  title: "<gradient:#00AAFF:#55FFFF>Your Keys Backpack</gradient>"
+  title: "<gradient:#00AAFF:#55FFFF>Keys Backpack</gradient>"
   key-name: "<gray>{amount}x</gray> {key_name}"
   filler-name: " "
   has-key-lore:

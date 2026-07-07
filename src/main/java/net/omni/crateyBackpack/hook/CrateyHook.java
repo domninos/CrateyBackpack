@@ -34,20 +34,24 @@ public class CrateyHook {
 
     private void mergeVisibleKeys() {
         List<String> visible = plugin.getConfigUtil().getVisibleKeys();
-        Set<String> existing = new HashSet<>(visible);
+        List<String> known = plugin.getConfigUtil().getKnownKeys();
+        Set<String> knownSet = new HashSet<>(known);
         int added = 0;
 
         for (String keyId : getKeyTypes().keySet()) {
-            if (!existing.contains(keyId)) {
+            if (!knownSet.contains(keyId)) {
                 visible.add(keyId);
+                known.add(keyId);
+                knownSet.add(keyId);
                 added++;
             }
         }
 
         if (added > 0) {
             plugin.getConfig().set("visible-keys", visible);
+            plugin.getConfig().set("known-keys", known);
             plugin.saveConfig();
-            plugin.sendConsole("<green>Added " + added + " new key type(s) to visible-keys.</green>");
+            plugin.sendConsole("<green>Discovered " + added + " new key type(s).</green>");
         }
     }
 

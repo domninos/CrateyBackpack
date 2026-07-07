@@ -13,6 +13,7 @@ public class ConfigUtil {
     private String databaseFile;
     private int autoSaveInterval;
     private List<String> visibleKeys;
+    private List<String> knownKeys;
     private Material fillerMaterial;
 
     private String guiTitle;
@@ -43,6 +44,11 @@ public class ConfigUtil {
             visibleKeys = null;
         }
 
+        if (knownKeys != null) {
+            knownKeys.clear();
+            knownKeys = null;
+        }
+
         if (hasKeyLore != null) {
             hasKeyLore.clear();
             hasKeyLore = null;
@@ -57,16 +63,17 @@ public class ConfigUtil {
     public void load() {
         AtomicInteger savedDefaults = new AtomicInteger();
 
-        this.databaseFile = getAndDefaultString("database.file", "data/backpack.db", savedDefaults::getAndAdd);
+        this.databaseFile = getAndDefaultString("database.file", "backpack.db", savedDefaults::getAndAdd);
         this.autoSaveInterval = getAndDefaultInt("auto-save-interval", 300, savedDefaults::getAndAdd);
         this.visibleKeys = plugin.getConfig().getStringList("visible-keys");
+        this.knownKeys = plugin.getConfig().getStringList("known-keys");
 
         String fillerName = getAndDefaultString("gui.filler-material", "LIGHT_BLUE_STAINED_GLASS_PANE", savedDefaults::getAndAdd);
         this.fillerMaterial = Material.matchMaterial(fillerName);
         if (this.fillerMaterial == null)
             this.fillerMaterial = Material.LIGHT_BLUE_STAINED_GLASS_PANE;
 
-        this.guiTitle = getAndDefaultString("gui.title", "<gradient:#00AAFF:#55FFFF>Your Keys Backpack</gradient>", savedDefaults::getAndAdd);
+        this.guiTitle = getAndDefaultString("gui.title", "<gradient:#00AAFF:#55FFFF>Keys Backpack</gradient>", savedDefaults::getAndAdd);
         this.keyNameFormat = getAndDefaultString("gui.key-name", "<gray>{amount}x</gray> {key_name}", savedDefaults::getAndAdd);
         this.fillerName = getAndDefaultString("gui.filler-name", " ", savedDefaults::getAndAdd);
         this.hasKeyLore = plugin.getConfig().getStringList("gui.has-key-lore");
@@ -131,6 +138,8 @@ public class ConfigUtil {
     public List<String> getVisibleKeys() {
         return visibleKeys;
     }
+
+    public List<String> getKnownKeys() { return knownKeys; }
 
     public Material getFillerMaterial() {
         return fillerMaterial;
