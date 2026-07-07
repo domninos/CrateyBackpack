@@ -1,5 +1,6 @@
 package net.omni.crateyBackpack.command;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.omni.crateyBackpack.CrateyBackpack;
 import net.omni.crateyBackpack.messages.MessageUtil;
 import net.omni.crateyBackpack.messages.Messages;
@@ -34,7 +35,7 @@ public class CrateyBackpackCommand implements CommandExecutor {
         }
 
         if (args[0].equalsIgnoreCase("about")) {
-            sender.sendMessage(MessageUtil.parse(getAboutText()));
+            sender.sendMessage(MiniMessage.miniMessage().deserialize(getAboutText()));
             return true;
         }
 
@@ -46,6 +47,7 @@ public class CrateyBackpackCommand implements CommandExecutor {
         plugin.getConfigUtil().reloadConfig();
         plugin.getMessagesManager().loadMessages();
         plugin.getCrateyHook().refresh();
+        plugin.getBackpackManager().invalidateInventories();
         plugin.sendMessage(sender, Messages.RELOADED.toString());
         return true;
     }

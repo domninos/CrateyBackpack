@@ -1,5 +1,6 @@
 package net.omni.crateyBackpack.command;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.omni.crateyBackpack.CrateyBackpack;
 import net.omni.crateyBackpack.hook.CrateyHook;
 import net.omni.crateyBackpack.inventory.KeysInventory;
@@ -53,7 +54,7 @@ public class KeysCommand implements CommandExecutor {
         String sub = args[0].toLowerCase();
         switch (sub) {
             case "help" -> sendHelp(sender);
-            case "about" -> sender.sendMessage(MessageUtil.parse(getAboutText()));
+            case "about" -> sender.sendMessage(MiniMessage.miniMessage().deserialize(getAboutText()));
             case "give" -> giveKeys(sender, args);
             case "take" -> takeKeys(sender, args);
             case "set" -> setKeys(sender, args);
