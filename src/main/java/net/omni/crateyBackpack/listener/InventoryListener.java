@@ -40,16 +40,11 @@ public class InventoryListener implements Listener {
 
         int slot = event.getSlot();
 
-        if (slot == 34) {
+        if (slot == 0) {
             keysInventory.prevPage();
             return;
         }
-        if (slot == 35) {
-            keysInventory.nextPage();
-            return;
-        }
-
-        if (slot == 26) {
+        if (slot == 8) {
             keysInventory.nextPage();
             return;
         }

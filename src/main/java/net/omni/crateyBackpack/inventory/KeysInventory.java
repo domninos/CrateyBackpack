@@ -22,10 +22,10 @@ import java.util.UUID;
 
 public class KeysInventory implements InventoryHolder {
 
-    private static final int INVENTORY_SIZE = 36;
-    private static final int ITEMS_PER_PAGE = 14;
-    private static final int PREV_SLOT = 34;
-    private static final int NEXT_SLOT = 35;
+    private static final int SIZE = 9;
+    private static final int ITEMS_PER_PAGE = 7;
+    private static final int PREV_SLOT = 0;
+    private static final int NEXT_SLOT = 8;
 
     private final CrateyBackpack plugin;
     private final Player player;
@@ -47,7 +47,7 @@ public class KeysInventory implements InventoryHolder {
         this.crateyHook = crateyHook;
 
         String title = plugin.getConfigUtil().getGuiTitle();
-        this.inventory = plugin.getChatRenderer().createInventory(this, INVENTORY_SIZE, title);
+        this.inventory = plugin.getChatRenderer().createInventory(this, SIZE, title);
 
         rebuildDisplayKeys();
     }
@@ -81,7 +81,7 @@ public class KeysInventory implements InventoryHolder {
         keySlots.clear();
 
         ItemStack filler = createFiller();
-        for (int i = 0; i < INVENTORY_SIZE; i++)
+        for (int i = 0; i < SIZE; i++)
             inventory.setItem(i, filler);
 
         Map<String, Integer> amounts = backpackManager.getKeys(player.getUniqueId());
@@ -90,24 +90,13 @@ public class KeysInventory implements InventoryHolder {
         int end = Math.min(start + ITEMS_PER_PAGE, displayKeys.size());
         int remaining = end - start;
 
-        // Row 1 (slots 9-17): keys centered, max 7, filler borders at 9 and 17
-        int count1 = Math.min(7, remaining);
-        int row1Start = 10 + (7 - count1) / 2;
-        for (int i = 0; i < count1; i++) {
+        // Keys centered in slots 1-7
+        int count = Math.min(7, remaining);
+        int keyStart = 1 + (7 - count) / 2;
+        for (int i = 0; i < count; i++) {
             CrateyHook.CrateKeyData keyData = displayKeys.get(start + i);
             int amount = amounts.getOrDefault(keyData.id(), 0);
-            int slot = row1Start + i;
-            inventory.setItem(slot, createKeyItem(keyData, amount));
-            keySlots.add(slot);
-        }
-
-        // Row 2 (slots 18-26): keys centered in 19-25
-        int count2 = Math.min(7, remaining - count1);
-        int row2Start = 19 + (7 - count2) / 2;
-        for (int i = 0; i < count2; i++) {
-            CrateyHook.CrateKeyData keyData = displayKeys.get(start + count1 + i);
-            int amount = amounts.getOrDefault(keyData.id(), 0);
-            int slot = row2Start + i;
+            int slot = keyStart + i;
             inventory.setItem(slot, createKeyItem(keyData, amount));
             keySlots.add(slot);
         }
