@@ -240,6 +240,7 @@ public class KeysCommand implements CommandExecutor {
         plugin.getConfigUtil().addVisibleKey(keyId);
 
         String name = plugin.getCrateyHook().getKeyType(keyId).get().name();
+        plugin.getBackpackManager().invalidateInventories();
         plugin.sendMessage(sender,
                 Messages.VISIBILITY_CHANGED.replace(
                         "key_name", name,
@@ -255,13 +256,19 @@ public class KeysCommand implements CommandExecutor {
 
         String keyId = args[1].toLowerCase();
 
+        if (plugin.getConfigUtil().getVisibleKeys().isEmpty()) {
+            for (String id : plugin.getCrateyHook().getKeyTypes().keySet())
+                plugin.getConfigUtil().addVisibleKey(id);
+        }
+
         plugin.getConfigUtil().removeVisibleKey(keyId);
 
         String name = plugin.getCrateyHook().getKeyType(keyId).map(CrateyHook.CrateKeyData::name).orElse(keyId);
+        plugin.getBackpackManager().invalidateInventories();
         plugin.sendMessage(sender,
                 Messages.VISIBILITY_CHANGED.replace(
                         "key_name", name,
-                        "visibility", "visible"
+                        "visibility", "hidden"
                 ));
     }
 

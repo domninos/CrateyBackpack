@@ -74,6 +74,11 @@ public class BackpackManager {
         refreshInventory(uuid);
     }
 
+    public void invalidateInventories() {
+        for (KeysInventory inv : inventoryCache.values())
+            inv.rebuildDisplayKeys();
+    }
+
     public void refreshInventory(UUID uuid) {
         KeysInventory inv = inventoryCache.get(uuid);
         if (inv != null)

@@ -15,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -45,6 +46,15 @@ public class KeysInventory implements InventoryHolder {
         this.backpackManager = backpackManager;
         this.crateyHook = crateyHook;
 
+        String title = plugin.getConfigUtil().getGuiTitle();
+        this.inventory = plugin.getChatRenderer().createInventory(this, INVENTORY_SIZE, MessageUtil.parse(title));
+
+        rebuildDisplayKeys();
+    }
+
+    public void rebuildDisplayKeys() {
+        displayKeys.clear();
+
         Map<String, CrateyHook.CrateKeyData> allTypes = crateyHook.getKeyTypes();
         List<String> visibleKeys = plugin.getConfigUtil().getVisibleKeys();
 
@@ -61,8 +71,7 @@ public class KeysInventory implements InventoryHolder {
         if (displayKeys.isEmpty())
             displayKeys.addAll(allTypes.values());
 
-        String title = plugin.getConfigUtil().getGuiTitle();
-        this.inventory = plugin.getChatRenderer().createInventory(this, INVENTORY_SIZE, MessageUtil.parse(title));
+        displayKeys.sort(Comparator.comparing(CrateyHook.CrateKeyData::name));
 
         buildPage(0);
     }
