@@ -150,6 +150,14 @@ public class KeysCommand implements CommandExecutor {
                         "key_name", name,
                         "amount", String.valueOf(amount)
                 ));
+
+        if (target.getPlayer() != null && target.isOnline()) {
+            plugin.sendMessage(target.getPlayer(),
+                    Messages.GOT_KEY.replace(
+                            "amount", String.valueOf(amount),
+                            "key_name", name
+                    ));
+        }
     }
 
     private void takeKeys(CommandSender sender, String[] args) {

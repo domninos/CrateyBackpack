@@ -13,6 +13,8 @@ public enum Messages {
 
     RELOADED("reloaded", "<green>config.yml and messages.yml have been reloaded.</green>"),
 
+    GOT_KEY("got_key", "<green>You have received %amount%x %key_name%. Use /keys to claim.</green>"),
+
     KEY_NOT_FOUND("key_not_found", "<red>Key type '%key_id%' not found.</red>"),
     KEY_GIVEN("key_given", "<green>Gave %amount%x %key_name% to %player%.</green>"),
     KEY_TAKEN("key_taken", "<green>Took %amount%x %key_name% from %player%.</green>"),

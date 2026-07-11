@@ -6,10 +6,11 @@ usage: "<red>Invalid arguments. Usage: %usage%</red>"
 
 unknown_cmd: "<red>Unknown command.</red>"
 
+got_key: "<green>You have received %amount%x %key_name%. Use /keys to claim.</green>"
+
 reloaded: "<green>config.yml and messages.yml have been reloaded.</green>"
 key_not_found: "<red>Key type '%key_id%' not found.</red>"
 key_given: "<green>Gave %amount%x %key_name% to %player%.</green>"
 key_taken: "<green>Took %amount%x %key_name% from %player%.</green>"
 key_take_fail: "<red>%player% does not have enough %key_id% keys.</red>"
 key_set: "<green>Set %player%'s %key_name% keys to %amount%.</green>"
-visibility_changed: "<green>%key_name% is now %visibility% in /keys.</green>"
